@@ -21,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={inter.className}>
       <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
-        <div className={`min-h-[100vh] flex flex-col`}>
+        <div className={`min-h-[100vh] flex flex-col bg-teal-700 text-white`}>
           <Header />
           <main className={`mx-auto w-full max-w-[1440px]`}>
             {children}

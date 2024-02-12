@@ -10,7 +10,7 @@ export default function Header() {
         </div>
         <nav className={`ml-auto flex flex-row gap-4 items-center`}>
           <Link href={`/signin`}>Sign In</Link>
-          <Link href={`/signup`}>
+          <Link href={`/join`}>
             <Button variant={`secondary`}>Join</Button>
           </Link>
         </nav>
