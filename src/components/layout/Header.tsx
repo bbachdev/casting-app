@@ -8,11 +8,17 @@ export default function Header() {
         <div>
           <Link href={`/`}>Header</Link>
         </div>
-        <nav className={`ml-auto flex flex-row gap-4 items-center`}>
-          <Link href={`/signin`}>Sign In</Link>
-          <Link href={`/join`}>
-            <Button variant={`secondary`}>Join</Button>
-          </Link>
+        <nav className={`ml-auto flex flex-row`}>
+          <div className={`flex flex-row gap-4 items-center mr-12`}>
+            <Link href={`/projects`}>Explore Projects</Link>
+          </div>
+          <div className={`flex flex-row gap-4 items-center`}>
+            <Link href={`/signin`}>Sign In</Link>
+            <Link href={`/join`}>
+              <Button variant={`secondary`}>Join</Button>
+            </Link>
+          </div>
+          
         </nav>
       </div>
     </header>
