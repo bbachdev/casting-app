@@ -23,7 +23,9 @@ export default function RootLayout({
       <ThemeProvider attribute="class" defaultTheme="light" disableTransitionOnChange>
         <div className={`min-h-[100vh] flex flex-col`}>
           <Header />
-          {children}
+          <main className={`mx-auto w-full max-w-[1440px]`}>
+            {children}
+          </main>
           <Footer />
         </div>
       </ThemeProvider>
