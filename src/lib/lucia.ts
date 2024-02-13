@@ -1,5 +1,5 @@
 import { Lucia } from "lucia";
-import { adapter as DrizzleAdapter } from "../db/schema";
+import { adapter as DrizzleAdapter } from "../db/adapter";
 
 export const lucia = new Lucia(DrizzleAdapter, {
 	sessionCookie: {
