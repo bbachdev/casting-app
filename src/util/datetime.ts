@@ -1,7 +1,5 @@
 export const getDayListForMonth = (month: number, year: number) => {
   const daysInMonth = new Date(year, month, 0).getDate();
-  console.log("Month: ", month)
-  console.log("Days in month: ", daysInMonth)
   return Array.from({ length: daysInMonth }, (_, i) => ``+(i + 1));
 }
 

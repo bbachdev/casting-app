@@ -7,7 +7,7 @@ export const signInSchema = z.object({
 
 export const joinSchemaBasicInfo = z.object({
   email: z.string().email(),
-  dateOfBirth: z.date(),
+  dateOfBirth: z.date().optional(),
 });
 
 //TODO: Add more, custom validation for password

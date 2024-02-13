@@ -7,11 +7,12 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
 import { z } from 'zod';
 import { Button } from '@/components/ui/button';
+import Error from '@/components/ui/error';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
 
 import { getDayListForMonth, getMonthList, monthToAcronym, getYearList } from '@/util/datetime';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function BasicInfo() {
   const currentDate = new Date()
@@ -24,32 +25,36 @@ export default function BasicInfo() {
   const form = useForm<z.infer<typeof joinSchemaBasicInfo>>({
     resolver: zodResolver(joinSchemaBasicInfo),
     defaultValues: {
-      email: "",
-      dateOfBirth: new Date(),
+      email: ""
     },
   })
 
   function onSubmit(data: z.infer<typeof joinSchemaBasicInfo>) {
-    console.log("Basic Info: ", data)
+    const dob = new Date(dobYear, dobMonth, dobDay)
+    const email = data.email
+    
+    //Verify dob is 18 or older
+    const eighteenYearsAgo = new Date()
+    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18)
+    if (dob > eighteenYearsAgo) {
+      //Set root error
+      form.setError("root", {
+        type: "dobTooYoung", message: "You must be 18 or older to join." 
+      })
+      return
+    }
+
   }
 
   function setMonth(value: string) {
     setDobMonth(parseInt(value))
     setDayList(getDayListForMonth(parseInt(value) + 1, dobYear))
-    if(dobDay > dayList.length) {
-      setDobDay(dayList.length -1)
-    }
   }
 
   function setYear(value: string) {
     setDobYear(parseInt(value))
     setDayList(getDayListForMonth(dobMonth + 1, parseInt(value)))
-    if(dobDay > dayList.length) {
-      setDobDay(dayList.length -1)
-    }
   }
-
-  //TODO: Figure out how to set days visually when month/year changes
 
   return (
     <>
@@ -65,49 +70,49 @@ export default function BasicInfo() {
               </FormControl>
             </FormItem>
           )}/>
-          <FormField control={form.control} name="dateOfBirth" render={({ field }) => (
-            <FormItem>
-              <FormLabel>Date of Birth</FormLabel>
-              <FormControl>
-                {/* TODO: Add date picker for DOB */}
-                <div className={`flex flex-row gap-4`}>
-                  <Select onValueChange={(e) => setMonth(e)}>
-                    <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder={ monthToAcronym(dobMonth) } />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {getMonthList().map((month) => (
-                        <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select onValueChange={(e) => setDobDay(parseInt(e))} value={dobDay.toString()}>
-                    <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder={dobDay} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      { dayList.map((day) => (
-                        <SelectItem key={day} value={day}>{day}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select onValueChange={(e) => setYear(e)}>
-                    <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder={dobYear} />
-                    </SelectTrigger>
-                    <SelectContent>
-                      { getYearList().map((year) => ( 
-                        <SelectItem key={year} value={year}>{year}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </FormControl>
-              <FormDescription>
-                This will not be visible to other users. By creating account, you agree to our <Link href={`/tos`} className={`underline`}>Terms of Service</Link> and <Link href={`/privacy`} className={`underline`}>Privacy Policy</Link>, and confirm that you are at least 18 years old.
-              </FormDescription>
-            </FormItem>
-          )}/>
+          <FormItem>
+            <FormLabel>Date of Birth</FormLabel>
+            <FormControl>
+              {/* TODO: Add date picker for DOB */}
+              <div className={`flex flex-row gap-4`}>
+                <Select onValueChange={(e) => setMonth(e)}>
+                  <SelectTrigger className="w-1/3">
+                    <SelectValue placeholder={ monthToAcronym(dobMonth) } />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {getMonthList().map((month) => (
+                      <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(e) => setDobDay(parseInt(e))}>
+                  <SelectTrigger className="w-1/3">
+                    <SelectValue placeholder={dobDay.toString()} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    { dayList.map((day) => (
+                      <SelectItem key={day} value={day}>{day}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select onValueChange={(e) => setYear(e)}>
+                  <SelectTrigger className="w-1/3">
+                    <SelectValue placeholder={dobYear} />
+                  </SelectTrigger>
+                  <SelectContent>
+                    { getYearList().map((year) => ( 
+                      <SelectItem key={year} value={year}>{year}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </FormControl>
+            <FormDescription>
+              This will not be visible to other users. By creating account, you agree to our <Link href={`/tos`} className={`underline`}>Terms of Service</Link> and <Link href={`/privacy`} className={`underline`}>Privacy Policy</Link>, and confirm that you are at least 18 years old.
+            </FormDescription>
+          </FormItem>
+
+          {form.formState.errors.root?.type === 'dobTooYoung' && <Error message={``+form.formState.errors.root.message} /> }
 
           <Button className={`w-full`}>Next</Button>
         </form>
