@@ -11,7 +11,7 @@ export default function SignInCard() {
   const [currentStep, setCurrentStep] = useState(0)
 
   return (
-    <Card className={`mx-auto w-1/3 flex flex-col`}>
+    <Card className={`mx-auto w-full md:w-1/2 lg:w-3/12 flex flex-col`}>
       <CardHeader className={`text-center text-3xl font-semibold`}>Join</CardHeader>
       <CardContent>
         { currentStep === 0 && (

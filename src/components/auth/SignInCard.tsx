@@ -32,7 +32,7 @@ export default function SignInCard() {
   }
 
   return (
-    <Card className={`mx-auto w-1/3 flex flex-col`}>
+    <Card className={`mx-auto w-1/4 flex flex-col`}>
       <CardHeader className={`text-center text-3xl font-semibold`}>Sign In</CardHeader>
       <CardContent>
         <SSOPanel />

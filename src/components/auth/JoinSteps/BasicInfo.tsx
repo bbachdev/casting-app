@@ -10,7 +10,17 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import Link from 'next/link';
 
+import { getDayListForMonth, getMonthList, monthToAcronym, getYearList } from '@/util/datetime';
+import { useState } from 'react';
+
 export default function BasicInfo() {
+  const currentDate = new Date()
+  const initialDayList = getDayListForMonth(currentDate.getMonth() + 1, currentDate.getFullYear())
+  const [dobMonth, setDobMonth] = useState<number>(currentDate.getMonth())
+  const [dobDay, setDobDay] = useState<number>(currentDate.getDate())
+  const [dobYear, setDobYear] = useState<number>(currentDate.getFullYear())
+  const [dayList, setDayList] = useState<string[]>(initialDayList)
+
   const form = useForm<z.infer<typeof joinSchemaBasicInfo>>({
     resolver: zodResolver(joinSchemaBasicInfo),
     defaultValues: {
@@ -22,6 +32,24 @@ export default function BasicInfo() {
   function onSubmit(data: z.infer<typeof joinSchemaBasicInfo>) {
     console.log("Basic Info: ", data)
   }
+
+  function setMonth(value: string) {
+    setDobMonth(parseInt(value))
+    setDayList(getDayListForMonth(parseInt(value) + 1, dobYear))
+    if(dobDay > dayList.length) {
+      setDobDay(dayList.length -1)
+    }
+  }
+
+  function setYear(value: string) {
+    setDobYear(parseInt(value))
+    setDayList(getDayListForMonth(dobMonth + 1, parseInt(value)))
+    if(dobDay > dayList.length) {
+      setDobDay(dayList.length -1)
+    }
+  }
+
+  //TODO: Figure out how to set days visually when month/year changes
 
   return (
     <>
@@ -43,34 +71,34 @@ export default function BasicInfo() {
               <FormControl>
                 {/* TODO: Add date picker for DOB */}
                 <div className={`flex flex-row gap-4`}>
-                  <Select>
+                  <Select onValueChange={(e) => setMonth(e)}>
                     <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder="Month" />
+                      <SelectValue placeholder={ monthToAcronym(dobMonth) } />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
+                      {getMonthList().map((month) => (
+                        <SelectItem key={month.value} value={month.value}>{month.label}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Select>
+                  <Select onValueChange={(e) => setDobDay(parseInt(e))} value={dobDay.toString()}>
                     <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder="Day" />
+                      <SelectValue placeholder={dobDay} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
+                      { dayList.map((day) => (
+                        <SelectItem key={day} value={day}>{day}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
-                  <Select>
+                  <Select onValueChange={(e) => setYear(e)}>
                     <SelectTrigger className="w-1/3">
-                      <SelectValue placeholder="Year" />
+                      <SelectValue placeholder={dobYear} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="light">Light</SelectItem>
-                      <SelectItem value="dark">Dark</SelectItem>
-                      <SelectItem value="system">System</SelectItem>
+                      { getYearList().map((year) => ( 
+                        <SelectItem key={year} value={year}>{year}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
