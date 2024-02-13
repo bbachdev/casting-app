@@ -5,10 +5,16 @@ export const signInSchema = z.object({
   password: z.string().min(12),
 });
 
-//TODO: Add more, custom validation for password
-export const joinSchema = z.object({
+export const joinSchemaBasicInfo = z.object({
   email: z.string().email(),
+  dateOfBirth: z.date(),
+});
+
+//TODO: Add more, custom validation for password
+export const joinSchemaAuthInfo = z.object({
   displayName: z.string().min(2),
   password: z.string().min(12),
   passwordConfirm: z.string().min(12),
 });
+
+export type JoinSchema = z.infer<typeof joinSchemaBasicInfo> & z.infer<typeof joinSchemaAuthInfo>;

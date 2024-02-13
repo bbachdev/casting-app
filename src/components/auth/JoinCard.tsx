@@ -1,77 +1,25 @@
 'use client'
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel } from '@/components/ui/form';
-import { joinSchema } from '@/schemas/auth';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
-import { z } from 'zod';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import Link from 'next/link';
-import SSOPanel from './SSOPanel';
-import { useTransition } from 'react';
-import { attemptLogin } from '@/actions/auth';
-import { createUser } from '@/actions/users';
+import { Card, CardContent, CardHeader } from '../ui/card';
+import { JoinSchema } from '@/schemas/auth';
+import { useState } from 'react';
+
+import BasicInfo from './JoinSteps/BasicInfo';
+import AuthInfo from './JoinSteps/AuthInfo';
 
 export default function SignInCard() {
-  const form = useForm<z.infer<typeof joinSchema>>({
-    resolver: zodResolver(joinSchema),
-    defaultValues: {
-      email: "",
-      password: "",
-      passwordConfirm: "",
-    },
-  })
-
-  async function onSubmit(data: z.infer<typeof joinSchema>) {
-    createUser(data.email, data.password, data.displayName)
-    .then( res => {
-      console.log(res);
-      if(res.status === 201) {
-        //TODO: Double-check if this is the correct way to handle this
-        attemptLogin(data.email, data.password);
-      }
-    })
-  }
+  const [userInfo, setUserInfo] = useState<JoinSchema>({ email: "", dateOfBirth: new Date(), displayName: "", password: "", passwordConfirm: "" })
+  const [currentStep, setCurrentStep] = useState(0)
 
   return (
     <Card className={`mx-auto w-1/3 flex flex-col`}>
       <CardHeader className={`text-center text-3xl font-semibold`}>Join</CardHeader>
       <CardContent>
-        <SSOPanel />
-        <p className={`text-center mt-4`}>or</p>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField control={form.control} name="email" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Email</FormLabel>
-                <FormControl>
-                  <Input {...field} type="email" />
-                </FormControl>
-              </FormItem>
-            )}/>
-            <FormField control={form.control} name="password" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Password</FormLabel>
-                <FormControl>
-                  <Input {...field} type="password" />
-                </FormControl>
-              </FormItem>
-            )}/>
-            <FormField control={form.control} name="passwordConfirm" render={({ field }) => (
-              <FormItem>
-                <FormLabel>Confirm Password</FormLabel>
-                <FormControl>
-                  <Input {...field} type="passwordConfirm" />
-                </FormControl>
-              </FormItem>
-            )}/>
-            <Button className={`w-full`}>Sign In</Button>
-          </form>
-        </Form>
-        <div className={`mt-4 w-full flex flex-col`}>
-          <Link className={`text-sm text-center font-semibold`} href={`/signin`}>Already have an account?</Link>
-        </div>
+        { currentStep === 0 && (
+          <BasicInfo/>
+        )}
+        { currentStep === 1 && (
+          <AuthInfo/>
+        )}
       </CardContent>
     </Card>
   )
