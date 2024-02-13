@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, primaryKey, timestamp } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -20,7 +20,7 @@ export const sessionTable = pgTable("session", {
 });
 
 export const projectTable = pgTable("project", {
-  id: text("id").primaryKey(),
+  id: serial("id").primaryKey(),
   name: text("name").notNull(),
   description: text("description").notNull(),
   createdAt: timestamp("created_at").notNull(),
@@ -29,26 +29,30 @@ export const projectTable = pgTable("project", {
 });
 
 export const tag = pgTable("tag", {
-  projectId: text("project_id").notNull().references(() => projectTable.id),
-  tagName: text("tag_name").notNull()
+  tagId: serial("id").primaryKey(),
+  tagName: text("tag_name").notNull(),
 });
 
 export const projectTag = pgTable("project_tag", {
-  projectId: text("project_id").notNull().references(() => projectTable.id),
-  tagId: text("tag_id").notNull().references(() => tag.projectId),
+  projectId: serial("project_id").notNull().references(() => projectTable.id),
+  tagId: serial("tag_id").notNull().references(() => tag.tagId),
+  }, (table) => {
+    return {
+      pk: primaryKey({ columns: [table.projectId, table.tagId] }),
+    };
 });
 
 export const roleTable = pgTable("role", {
-  id: text("id").primaryKey(),
+  id: serial("id").primaryKey(),
   roleTitle: text("role_title").notNull(),
-  projectId: text("project_id").notNull().references(() => projectTable.id),
+  projectId: serial("project_id").notNull().references(() => projectTable.id),
   imageUrl: text("image_url").notNull(),
 });
 
 export const audition = pgTable("audition", {
-  id: text("id").primaryKey(),
-  projectId: text("project_id").notNull().references(() => projectTable.id),
-  roleId: text("role_id").notNull().references(() => roleTable.id),
+  id: serial("id").primaryKey(),
+  projectId: serial("project_id").notNull().references(() => projectTable.id),
+  roleId: serial("role_id").notNull().references(() => roleTable.id),
   userId: text("user_id").notNull().references(() => userTable.id),
   srcUrl: text("src_url").notNull(),
   createdAt: timestamp("created_at").notNull()
