@@ -8,6 +8,7 @@ export const signInSchema = z.object({
 //TODO: Add more, custom validation for password
 export const joinSchema = z.object({
   email: z.string().email(),
+  displayName: z.string().min(2),
   password: z.string().min(12),
   passwordConfirm: z.string().min(12),
 });

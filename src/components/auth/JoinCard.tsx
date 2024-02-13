@@ -11,6 +11,7 @@ import Link from 'next/link';
 import SSOPanel from './SSOPanel';
 import { useTransition } from 'react';
 import { attemptLogin } from '@/actions/auth';
+import { createUser } from '@/actions/users';
 
 export default function SignInCard() {
   const form = useForm<z.infer<typeof joinSchema>>({
@@ -23,7 +24,14 @@ export default function SignInCard() {
   })
 
   async function onSubmit(data: z.infer<typeof joinSchema>) {
-    console.log("Attempt Sign Up")
+    createUser(data.email, data.password, data.displayName)
+    .then( res => {
+      console.log(res);
+      if(res.status === 201) {
+        //TODO: Double-check if this is the correct way to handle this
+        attemptLogin(data.email, data.password);
+      }
+    })
   }
 
   return (
