@@ -3,6 +3,8 @@ import { ServerActionResponse } from '@/util/actions';
 import { eq } from 'drizzle-orm';
 import drizzle from '@/lib/drizzle';
 import { userTable } from '@/db/schema';
+import { lucia } from '@/lib/lucia';
+import { cookies } from "next/headers";
 
 export const checkEmail = async (email: string) : Promise<ServerActionResponse> => {
   const user = await drizzle.query.userTable.findFirst({
@@ -26,4 +28,17 @@ export const attemptLogin = async (email: string, password: string) : Promise<Se
 
 
   return ServerActionResponse(200, user);
+}
+
+export const createSession = async (userId: string) : Promise<ServerActionResponse> => {
+  const session = await lucia.createSession(userId, {});
+  const sessionCookie = lucia.createSessionCookie(session.id);
+  const cookieStore = cookies()
+  cookieStore.set({
+    name: "session",
+    path: "/",
+    value: sessionCookie.serialize(),
+  })
+  
+  return ServerActionResponse(200, `Session created for user ${userId}`);
 }

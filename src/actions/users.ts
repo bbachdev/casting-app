@@ -6,10 +6,16 @@ import { eq } from 'drizzle-orm';
 
 import { Argon2id } from "oslo/password";
 import { generateId } from "lucia";
+import { createSession } from './auth';
 
 type User = typeof userTable.$inferInsert
 
-export const createUser = async (email: string, password: string, displayName: string) : Promise<ServerActionResponse> => {
+export const createUser = async (email: string, password: string, displayName: string, dob: Date) : Promise<ServerActionResponse> => {
+  //Verify data is present
+  if(!email || !password || !displayName || !dob) {
+    return ServerActionResponse(400, 'Please fill out all fields.');
+  }
+
   //Check if user already exists
   const user = await drizzle.query.userTable.findFirst({
     where: eq(userTable.email, email)
@@ -29,9 +35,13 @@ export const createUser = async (email: string, password: string, displayName: s
     email,
     hashedPassword: password,
     createdAt: new Date(),
-    displayName
+    displayName,
+    dateOfBirth: dob.toLocaleString('en-US')
   }
   const createdUser = await drizzle.insert(userTable).values(newUser).returning({ userId: userTable.id, email: userTable.email, displayName: userTable.displayName});
+
+  //Generate session for new user
+  await createSession(createdUser[0].userId);
 
   return ServerActionResponse(201, createdUser);
 }

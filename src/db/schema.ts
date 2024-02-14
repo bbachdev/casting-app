@@ -1,11 +1,13 @@
-import { pgTable, text, serial, primaryKey, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, primaryKey, timestamp, date } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
 	id: text("id").primaryKey(),
   email: text("email").notNull().unique(),
   hashedPassword: text("hashed_password").notNull(),
   createdAt: timestamp("created_at").notNull(),
-  displayName: text("display_name").notNull()
+  displayName: text("display_name").notNull(),
+  profileImageUrl: text("profile_image_url"),
+  dateOfBirth: date("date_of_birth").notNull()
 });
 
 export const sessionTable = pgTable("session", {
