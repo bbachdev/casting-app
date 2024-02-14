@@ -15,10 +15,10 @@ export default function SignInCard() {
       <CardHeader className={`text-center text-3xl font-semibold`}>Join</CardHeader>
       <CardContent>
         { currentStep === 0 && (
-          <BasicInfo/>
+          <BasicInfo setUserInfo={setUserInfo} setCurrentStep={setCurrentStep}/>
         )}
         { currentStep === 1 && (
-          <AuthInfo/>
+          <AuthInfo setUserInfo={setUserInfo} setCurrentStep={setCurrentStep}/>
         )}
       </CardContent>
     </Card>

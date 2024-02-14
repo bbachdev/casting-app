@@ -1,7 +1,7 @@
 'use client'
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form';
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import SSOPanel from '../SSOPanel';
-import { joinSchemaBasicInfo } from '@/schemas/auth';
+import { JoinSchema, joinSchemaBasicInfo } from '@/schemas/auth';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Input } from '@/components/ui/input';
@@ -12,9 +12,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Link from 'next/link';
 
 import { getDayListForMonth, getMonthList, monthToAcronym, getYearList } from '@/util/datetime';
-import { useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { checkEmail } from '@/actions/auth';
 
-export default function BasicInfo() {
+interface BasicInfoProps {
+  setUserInfo: Dispatch<SetStateAction<JoinSchema>>
+  setCurrentStep: Dispatch<SetStateAction<number>>
+}
+
+export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps) {
   const currentDate = new Date()
   const initialDayList = getDayListForMonth(currentDate.getMonth() + 1, currentDate.getFullYear())
   const [dobMonth, setDobMonth] = useState<number>(currentDate.getMonth())
@@ -29,7 +35,7 @@ export default function BasicInfo() {
     },
   })
 
-  function onSubmit(data: z.infer<typeof joinSchemaBasicInfo>) {
+  async function onSubmit(data: z.infer<typeof joinSchemaBasicInfo>) {
     const dob = new Date(dobYear, dobMonth, dobDay)
     const email = data.email
     
@@ -44,6 +50,21 @@ export default function BasicInfo() {
       return
     }
 
+    //Check if email is already in use
+    const userCheck = await checkEmail(email)
+    if(userCheck.status === 200) {
+      form.setError("email", {
+        type: "userExists", message: "Email is already in use."
+      })
+      return
+    }
+
+    //Else, save data and move to next step
+    setUserInfo(prevUserData => ({
+      ...prevUserData, 
+      email, dateOfBirth: dob
+    }))
+    setCurrentStep(1)
   }
 
   function setMonth(value: string) {
@@ -68,6 +89,7 @@ export default function BasicInfo() {
               <FormControl>
                 <Input {...field} type="email" />
               </FormControl>
+              <FormMessage/>
             </FormItem>
           )}/>
           <FormItem>
@@ -114,7 +136,7 @@ export default function BasicInfo() {
 
           {form.formState.errors.root?.type === 'dobTooYoung' && <Error message={``+form.formState.errors.root.message} /> }
 
-          <Button className={`w-full`}>Next</Button>
+          <Button className={`w-full`} type='submit'>Next</Button>
         </form>
       </Form>
     </>

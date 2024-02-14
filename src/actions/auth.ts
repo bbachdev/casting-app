@@ -4,6 +4,14 @@ import { eq } from 'drizzle-orm';
 import drizzle from '@/lib/drizzle';
 import { userTable } from '@/db/schema';
 
+export const checkEmail = async (email: string) : Promise<ServerActionResponse> => {
+  const user = await drizzle.query.userTable.findFirst({
+    where: eq(userTable.email, email)
+  })
+
+  return (user) ? ServerActionResponse(200, `User exists`) : ServerActionResponse(404, `User doesn't exist`);
+}
+
 export const attemptLogin = async (email: string, password: string) : Promise<ServerActionResponse> => {
   const user = await drizzle.query.userTable.findFirst({
     where: eq(userTable.email, email)

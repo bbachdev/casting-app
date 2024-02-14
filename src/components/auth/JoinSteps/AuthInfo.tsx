@@ -1,13 +1,19 @@
 'use client'
 import { Button } from '@/components/ui/button';
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel } from '@/components/ui/form'
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form'
 import { Input } from '@/components/ui/input';
-import { joinSchemaAuthInfo } from '@/schemas/auth';
+import { JoinSchema, joinSchemaAuthInfo } from '@/schemas/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Dispatch, SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
-export default function AuthInfo() {
+type AuthInfoProps = {
+  setUserInfo: Dispatch<SetStateAction<JoinSchema>>
+  setCurrentStep: Dispatch<SetStateAction<number>>
+}
+
+export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) {
   const form = useForm<z.infer<typeof joinSchemaAuthInfo>>({
     resolver: zodResolver(joinSchemaAuthInfo),
     defaultValues: {
@@ -19,6 +25,10 @@ export default function AuthInfo() {
 
   function onSubmit(data: z.infer<typeof joinSchemaAuthInfo>) {
     console.log("Basic Info: ", data)
+  }
+
+  function goBack() {
+    setCurrentStep(0)
   }
 
   return (
@@ -51,7 +61,10 @@ export default function AuthInfo() {
             </FormControl>
           </FormItem>
         )}/>
-        <Button className={`w-full`}>Create Account</Button>
+        <div className={`flex flex-row gap-4`}>
+          <Button className={`w-full`} variant={'outline'} onClick={goBack} type='button'>Back</Button>
+          <Button className={`w-full`} type='submit'>Create Account</Button>
+        </div>
       </form>
     </Form>
   )
