@@ -12,8 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import Link from 'next/link';
 
 import { getDayListForMonth, getMonthList, monthToAcronym, getYearList } from '@/util/datetime';
-import { Dispatch, SetStateAction, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState, useTransition } from 'react';
 import { checkEmail } from '@/actions/auth';
+
+import ClipLoader from 'react-spinners/ClipLoader';
+import { start } from 'repl';
 
 interface BasicInfoProps {
   setUserInfo: Dispatch<SetStateAction<JoinSchema>>
@@ -21,6 +24,7 @@ interface BasicInfoProps {
 }
 
 export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps) {
+  const [loading, startTransition] = useTransition()
   const currentDate = new Date()
   const initialDayList = getDayListForMonth(currentDate.getMonth() + 1, currentDate.getFullYear())
   const [dobMonth, setDobMonth] = useState<number>(currentDate.getMonth())
@@ -36,35 +40,37 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
   })
 
   async function onSubmit(data: z.infer<typeof joinSchemaBasicInfo>) {
-    const dob = new Date(dobYear, dobMonth, dobDay)
-    const email = data.email
-    
-    //Verify dob is 18 or older
-    const eighteenYearsAgo = new Date()
-    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18)
-    if (dob > eighteenYearsAgo) {
-      //Set root error
-      form.setError("root", {
-        type: "dobTooYoung", message: "You must be 18 or older to join." 
-      })
-      return
-    }
+    startTransition(async () => {
+      const dob = new Date(dobYear, dobMonth, dobDay)
+      const email = data.email
+      
+      //Verify dob is 18 or older
+      const eighteenYearsAgo = new Date()
+      eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18)
+      if (dob > eighteenYearsAgo) {
+        //Set root error
+        form.setError("root", {
+          type: "dobTooYoung", message: "You must be 18 or older to join." 
+        })
+        return
+      }
 
-    //Check if email is already in use
-    const userCheck = await checkEmail(email)
-    if(userCheck.status === 200) {
-      form.setError("email", {
-        type: "userExists", message: "Email is already in use."
-      })
-      return
-    }
+      //Check if email is already in use
+      const userCheck = await checkEmail(email)
+      if(userCheck.status === 200) {
+        form.setError("email", {
+          type: "userExists", message: "Email is already in use."
+        })
+        return
+      }
 
-    //Else, save data and move to next step
-    setUserInfo(prevUserData => ({
-      ...prevUserData, 
-      email, dateOfBirth: dob
-    }))
-    setCurrentStep(1)
+      //Else, save data and move to next step
+      setUserInfo(prevUserData => ({
+        ...prevUserData, 
+        email, dateOfBirth: dob
+      }))
+      setCurrentStep(1)
+    })
   }
 
   function setMonth(value: string) {
@@ -136,7 +142,9 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
 
           {form.formState.errors.root?.type === 'dobTooYoung' && <Error message={``+form.formState.errors.root.message} /> }
 
-          <Button className={`w-full`} type='submit'>Next</Button>
+          <Button className={`w-full`} type='submit'>
+            {loading ? <ClipLoader color={'#fff'} loading={loading} size={25} /> : "Next"}
+          </Button>
         </form>
       </Form>
     </>
