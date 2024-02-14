@@ -8,7 +8,7 @@ import AuthInfo from './JoinSteps/AuthInfo';
 
 export default function SignInCard() {
   const [userInfo, setUserInfo] = useState<JoinSchema>({ email: "", dateOfBirth: new Date(), displayName: "", password: "", passwordConfirm: "" })
-  const [currentStep, setCurrentStep] = useState(0)
+  const [currentStep, setCurrentStep] = useState(1)
 
   return (
     <Card className={`mx-auto w-full md:w-1/2 lg:w-1/3 flex flex-col`}>

@@ -4,9 +4,12 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { JoinSchema, joinSchemaAuthInfo } from '@/schemas/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dispatch, SetStateAction } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
+
+import { FaCheckCircle } from "react-icons/fa";
+import { FaCircleXmark } from "react-icons/fa6";
 
 type AuthInfoProps = {
   setUserInfo: Dispatch<SetStateAction<JoinSchema>>
@@ -14,6 +17,14 @@ type AuthInfoProps = {
 }
 
 export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) {
+  const [passwordRequirements, setPasswordRequirements] = useState({
+    length: false,
+    uppercase: false,
+    lowercase: false,
+    number: false,
+    special: false,
+  })
+
   const form = useForm<z.infer<typeof joinSchemaAuthInfo>>({
     resolver: zodResolver(joinSchemaAuthInfo),
     defaultValues: {
@@ -22,6 +33,18 @@ export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) 
       passwordConfirm: "",
     },
   })
+
+  async function passwordChanged(event: FormEvent<HTMLInputElement>) {
+    const password = event.currentTarget.value
+    console.log("Password: ", password)
+    setPasswordRequirements({
+      length: password.length >= 12,
+      uppercase: /[A-Z]/.test(password),
+      lowercase: /[a-z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#\$%\^&\*]/.test(password),
+    },)
+  }
 
   function onSubmit(data: z.infer<typeof joinSchemaAuthInfo>) {
     console.log("Basic Info: ", data)
@@ -49,16 +72,42 @@ export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) 
           <FormItem>
             <FormLabel>Password</FormLabel>
             <FormControl>
-              <Input {...field} type="password" />
+              <Input {...field} type="password" onChangeCapture={(e) => passwordChanged(e)}/>
             </FormControl>
+            <FormDescription>
+              <p className={`font-semibold mb-2`}>Passwords must contain:</p>
+              <ul className={`list-none pl-2 flex flex-col gap-1`}>
+                <li className={`flex flex-row items-center`}>
+                  { passwordRequirements.length ? <FaCheckCircle className={`text-xl mr-2 text-emerald-600/90`}/> : <FaCircleXmark className={`text-xl mr-2 text-destructive/90`}/> }
+                  <span>At least 12 characters</span>
+                </li>
+                <li className={`flex flex-row items-center`}>
+                  { passwordRequirements.uppercase ? <FaCheckCircle className={`text-xl mr-2 text-emerald-600/90`}/> : <FaCircleXmark className={`text-xl mr-2 text-destructive/90`}/> }
+                  <span>At least one uppercase letter</span>
+                </li>
+                <li className={`flex flex-row items-center`}>
+                  { passwordRequirements.lowercase ? <FaCheckCircle className={`text-xl mr-2 text-emerald-600/90`}/> : <FaCircleXmark className={`text-xl mr-2 text-destructive/90`}/> }
+                  <span>At least one lowercase letter</span></li>
+                <li className={`flex flex-row items-center`}>
+                  { passwordRequirements.number ? <FaCheckCircle className={`text-xl mr-2 text-emerald-600/90`}/> : <FaCircleXmark className={`text-xl mr-2 text-destructive/90`}/> }
+                  <span>At least one number</span>
+                </li>
+                <li className={`flex flex-row items-center`}>
+                  { passwordRequirements.special ? <FaCheckCircle className={`text-xl mr-2 text-emerald-600/90`}/> : <FaCircleXmark className={`text-xl mr-2 text-destructive/90`}/> }
+                  <span>At least one special character</span>
+                </li>
+              </ul>
+            </FormDescription>
           </FormItem>
         )}/>
+        {/* TODO: Add password requirements */}
         <FormField control={form.control} name="passwordConfirm" render={({ field }) => (
           <FormItem>
             <FormLabel>Confirm Password</FormLabel>
             <FormControl>
               <Input {...field} type="passwordConfirm" />
             </FormControl>
+            <FormMessage/>
           </FormItem>
         )}/>
         <div className={`flex flex-row gap-4`}>
