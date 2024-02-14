@@ -19,13 +19,14 @@ import ClipLoader from 'react-spinners/ClipLoader';
 import { start } from 'repl';
 
 interface BasicInfoProps {
+  userInfo: JoinSchema
   setUserInfo: Dispatch<SetStateAction<JoinSchema>>
   setCurrentStep: Dispatch<SetStateAction<number>>
 }
 
-export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps) {
+export default function BasicInfo({ userInfo, setUserInfo, setCurrentStep}: BasicInfoProps) {
   const [loading, startTransition] = useTransition()
-  const currentDate = new Date()
+  const currentDate = (userInfo.dateOfBirth) ? userInfo.dateOfBirth : new Date()
   const initialDayList = getDayListForMonth(currentDate.getMonth() + 1, currentDate.getFullYear())
   const [dobMonth, setDobMonth] = useState<number>(currentDate.getMonth())
   const [dobDay, setDobDay] = useState<number>(currentDate.getDate())
@@ -35,7 +36,7 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
   const form = useForm<z.infer<typeof joinSchemaBasicInfo>>({
     resolver: zodResolver(joinSchemaBasicInfo),
     defaultValues: {
-      email: ""
+      email: userInfo.email || ''
     },
   })
 
@@ -67,7 +68,8 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
       //Else, save data and move to next step
       setUserInfo(prevUserData => ({
         ...prevUserData, 
-        email, dateOfBirth: dob
+        email: email, 
+        dateOfBirth: dob
       }))
       setCurrentStep(1)
     })
@@ -93,7 +95,7 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
             <FormItem>
               <FormLabel>Email</FormLabel>
               <FormControl>
-                <Input {...field} type="email" />
+                <Input {...field} type="email"/>
               </FormControl>
               <FormMessage/>
             </FormItem>
@@ -105,7 +107,7 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
               <div className={`flex flex-row gap-4`}>
                 <Select onValueChange={(e) => setMonth(e)}>
                   <SelectTrigger className="w-1/3">
-                    <SelectValue placeholder={ monthToAcronym(dobMonth) } />
+                    <SelectValue placeholder={ monthToAcronym(dobMonth)} defaultValue={dobMonth}/>
                   </SelectTrigger>
                   <SelectContent>
                     {getMonthList().map((month) => (
@@ -115,7 +117,7 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
                 </Select>
                 <Select onValueChange={(e) => setDobDay(parseInt(e))}>
                   <SelectTrigger className="w-1/3">
-                    <SelectValue placeholder={dobDay.toString()} />
+                    <SelectValue placeholder={dobDay.toString()} defaultValue={dobDay}/>
                   </SelectTrigger>
                   <SelectContent>
                     { dayList.map((day) => (
@@ -125,7 +127,7 @@ export default function BasicInfo({ setUserInfo, setCurrentStep}: BasicInfoProps
                 </Select>
                 <Select onValueChange={(e) => setYear(e)}>
                   <SelectTrigger className="w-1/3">
-                    <SelectValue placeholder={dobYear} />
+                    <SelectValue placeholder={dobYear} defaultValue={dobYear}/>
                   </SelectTrigger>
                   <SelectContent>
                     { getYearList().map((year) => ( 

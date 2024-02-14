@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const signInSchema = z.object({
   email: z.string().email(),
-  password: z.string().min(12),
+  password: z.string(),
 });
 
 export const joinSchemaBasicInfo = z.object({

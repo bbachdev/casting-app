@@ -11,6 +11,7 @@ import Link from 'next/link';
 import SSOPanel from './SSOPanel';
 import { useTransition } from 'react';
 import { attemptLogin } from '@/actions/auth';
+import Error from '@/components/ui/error';
 
 export default function SignInCard() {
   const [isLoading, startTransition] = useTransition()
@@ -26,13 +27,26 @@ export default function SignInCard() {
     startTransition(() => {
       attemptLogin(data.email, data.password)
       .then((response) => {
-        console.log(response)
+        if(response) {
+          if(response.status === 500) {
+            form.setError("root", {
+              type: "serverError", message: 'An error occurred. Please try again later.' 
+            })
+            return
+          }
+          else if(response.status !== 200) {
+            form.setError("root", {
+              type: "credentialFail", message: 'Invalid email or password. Please try again.' 
+            })
+            return
+          }
+        } 
       })
     })
   }
 
   return (
-    <Card className={`mx-auto w-1/4 flex flex-col`}>
+    <Card className={`mx-auto w-full md:w-1/2 lg:w-1/3 flex flex-col`}>
       <CardHeader className={`text-center text-3xl font-semibold`}>Sign In</CardHeader>
       <CardContent>
         <SSOPanel />
@@ -55,6 +69,7 @@ export default function SignInCard() {
                 </FormControl>
               </FormItem>
             )}/>
+            {form.formState.errors.root?.type === 'credentialFail' && <Error message={``+form.formState.errors.root.message} /> }
             <Button className={`w-full`}>Sign In</Button>
           </form>
         </Form>

@@ -4,19 +4,23 @@ import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, For
 import { Input } from '@/components/ui/input';
 import { JoinSchema, joinSchemaAuthInfo } from '@/schemas/auth';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Dispatch, FormEvent, SetStateAction, useState } from 'react';
+import { Dispatch, FormEvent, SetStateAction, useEffect, useState, useTransition } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
 import { FaCheckCircle } from "react-icons/fa";
 import { FaCircleXmark } from "react-icons/fa6";
+import { createUser } from '@/actions/users';
+import ClipLoader from 'react-spinners/ClipLoader';
 
 type AuthInfoProps = {
+  userInfo: JoinSchema
   setUserInfo: Dispatch<SetStateAction<JoinSchema>>
   setCurrentStep: Dispatch<SetStateAction<number>>
 }
 
-export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) {
+export default function AuthInfo({ userInfo, setUserInfo, setCurrentStep}: AuthInfoProps) {
+  const [loading, startTransition] = useTransition()
   const [passwordRequirements, setPasswordRequirements] = useState({
     length: false,
     uppercase: false,
@@ -28,15 +32,14 @@ export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) 
   const form = useForm<z.infer<typeof joinSchemaAuthInfo>>({
     resolver: zodResolver(joinSchemaAuthInfo),
     defaultValues: {
-      displayName: "",
-      password: "",
-      passwordConfirm: "",
+      displayName: userInfo.displayName || "",
+      password: userInfo.password ||  "",
+      passwordConfirm: userInfo.passwordConfirm ||  "",
     },
   })
 
   async function passwordChanged(event: FormEvent<HTMLInputElement>) {
     const password = event.currentTarget.value
-    console.log("Password: ", password)
     setPasswordRequirements({
       length: password.length >= 12,
       uppercase: /[A-Z]/.test(password),
@@ -46,13 +49,39 @@ export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) 
     },)
   }
 
-  function onSubmit(data: z.infer<typeof joinSchemaAuthInfo>) {
-    console.log("Basic Info: ", data)
+  async function onSubmit(data: z.infer<typeof joinSchemaAuthInfo>) {
+    startTransition(async () => {
+      setUserInfo((prev) => ({ ...prev, ...data }))
+
+      console.log("User Info: ", userInfo)
+    
+      //Attempt to create user
+      const res = await createUser(userInfo.email, userInfo.password, userInfo.displayName, userInfo.dateOfBirth!)
+      if(res && res.status !== 201) {
+        console.error("Error creating user: ", res)
+        form.setError("root", {
+          type: "userCreateError", message: res.response as string 
+        })
+      }
+    })
   }
 
   function goBack() {
     setCurrentStep(0)
   }
+
+  useEffect(() => {
+    setPasswordRequirements({
+      length: userInfo.password.length >= 12,
+      uppercase: /[A-Z]/.test(userInfo.password),
+      lowercase: /[a-z]/.test(userInfo.password),
+      number: /\d/.test(userInfo.password),
+      special: /[!@#\$%\^&\*]/.test(userInfo.password)
+    })
+  }, [])
+
+  //Run setPasswordRequirements on initial load
+
 
   return (
     <Form {...form}>
@@ -105,14 +134,16 @@ export default function AuthInfo({ setUserInfo, setCurrentStep}: AuthInfoProps) 
           <FormItem>
             <FormLabel>Confirm Password</FormLabel>
             <FormControl>
-              <Input {...field} type="passwordConfirm" />
+              <Input {...field} type="password" />
             </FormControl>
             <FormMessage/>
           </FormItem>
         )}/>
         <div className={`flex flex-row gap-4`}>
           <Button className={`w-full`} variant={'outline'} onClick={goBack} type='button'>Back</Button>
-          <Button className={`w-full`} type='submit'>Create Account</Button>
+          <Button className={`w-full`} type='submit'>
+            {loading ? <ClipLoader color={'#fff'} loading={loading} size={25} /> : <span>Create Account</span>}
+          </Button>
         </div>
       </form>
     </Form>

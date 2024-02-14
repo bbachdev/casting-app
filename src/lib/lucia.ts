@@ -8,6 +8,13 @@ interface DatabaseUserAttributes {
 }
 
 export const lucia = new Lucia(DrizzleAdapter, {
+  getUserAttributes: (attributes) => {
+    return {
+      displayName: attributes.displayName,
+      email: attributes.email,
+      profileImageUrl: attributes.profileImageUrl
+    }
+  },
 	sessionCookie: {
     name: 'session',
     expires: false,

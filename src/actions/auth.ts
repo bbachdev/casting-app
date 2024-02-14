@@ -5,6 +5,8 @@ import drizzle from '@/lib/drizzle';
 import { userTable } from '@/db/schema';
 import { lucia } from '@/lib/lucia';
 import { cookies } from "next/headers";
+import { Argon2id } from "oslo/password";
+import { redirect } from 'next/navigation'
 
 export const checkEmail = async (email: string) : Promise<ServerActionResponse> => {
   const user = await drizzle.query.userTable.findFirst({
@@ -15,19 +17,29 @@ export const checkEmail = async (email: string) : Promise<ServerActionResponse> 
 }
 
 export const attemptLogin = async (email: string, password: string) : Promise<ServerActionResponse> => {
-  const user = await drizzle.query.userTable.findFirst({
-    where: eq(userTable.email, email)
-  })
-  console.log("User: ", user)
+  try{
+    const user = await drizzle.query.userTable.findFirst({
+      where: eq(userTable.email, email)
+    })
+    console.log("User: ", user)
 
-  if (!user) {
-    return ServerActionResponse(404, 'User not found');
+    if (!user) {
+      return ServerActionResponse(404, 'User not found');
+    }
+
+    const argon2id = new Argon2id();
+    if(!await argon2id.verify(user.hashedPassword, password)) {
+      return ServerActionResponse(401, 'Incorrect password');
+    }
+
+    //Create session for user
+    await createSession(user.id);
+  }catch(e){
+    console.error("Error logging in: ", e);
+    return ServerActionResponse(500, 'An error occurred. Please try again later.');
   }
-
-  //TODO: Verify password w/ bcrypt
-
-
-  return ServerActionResponse(200, user);
+  //Redirect to dashboard (Outside of try-catch due to redirect's behavior: https://github.com/vercel/next.js/issues/49298)
+  redirect('/dashboard');
 }
 
 export const createSession = async (userId: string) : Promise<ServerActionResponse> => {
