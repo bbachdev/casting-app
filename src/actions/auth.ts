@@ -7,6 +7,8 @@ import { lucia } from '@/lib/lucia';
 import { cookies } from "next/headers";
 import { Argon2id } from "oslo/password";
 import { redirect } from 'next/navigation'
+import { cache } from 'react';
+import { Session, User } from 'lucia';
 
 export const checkEmail = async (email: string) : Promise<ServerActionResponse> => {
   const user = await drizzle.query.userTable.findFirst({
@@ -45,12 +47,53 @@ export const attemptLogin = async (email: string, password: string) : Promise<Se
 export const createSession = async (userId: string) : Promise<ServerActionResponse> => {
   const session = await lucia.createSession(userId, {});
   const sessionCookie = lucia.createSessionCookie(session.id);
-  const cookieStore = cookies()
-  cookieStore.set({
-    name: "session",
-    path: "/",
-    value: sessionCookie.serialize(),
-  })
+  cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
   
   return ServerActionResponse(200, `Session created for user ${userId}`);
+}
+
+export const validateRequest = cache(
+	async (): Promise<{ user: User; session: Session } | { user: null; session: null }> => {
+    console.log("Cookie name: ", lucia.sessionCookieName)
+		const sessionId = cookies().get(lucia.sessionCookieName)?.value ?? null;
+		if (!sessionId) {
+			return {
+				user: null,
+				session: null
+			};
+		}
+
+    console.log("Session ID: ", sessionId)
+		const result = await lucia.validateSession(sessionId);
+		// next.js throws when you attempt to set cookie when rendering page
+    console.log("Result: ", result)
+		try {
+			if (result.session && result.session.fresh) {
+				const sessionCookie = lucia.createSessionCookie(result.session.id);
+				cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+			}
+			if (!result.session) {
+				const sessionCookie = lucia.createBlankSessionCookie();
+				cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+			}
+		} catch {}
+		return result;
+	}
+);
+
+export const signOut = async () : Promise<ServerActionResponse> => {
+  const { session } = await validateRequest();
+	if (!session) {
+		return {
+      success: false,
+      status: 401,
+      response: "No session exists" ,
+		};
+	}
+
+	await lucia.invalidateSession(session.id);
+
+	const sessionCookie = lucia.createBlankSessionCookie();
+	cookies().set(sessionCookie.name, sessionCookie.value, sessionCookie.attributes);
+	return redirect("/signin");
 }

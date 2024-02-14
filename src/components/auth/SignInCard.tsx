@@ -12,9 +12,10 @@ import SSOPanel from './SSOPanel';
 import { useTransition } from 'react';
 import { attemptLogin } from '@/actions/auth';
 import Error from '@/components/ui/error';
+import ClipLoader from 'react-spinners/ClipLoader';
 
 export default function SignInCard() {
-  const [isLoading, startTransition] = useTransition()
+  const [loading, startTransition] = useTransition()
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
@@ -70,7 +71,9 @@ export default function SignInCard() {
               </FormItem>
             )}/>
             {form.formState.errors.root?.type === 'credentialFail' && <Error message={``+form.formState.errors.root.message} /> }
-            <Button className={`w-full`}>Sign In</Button>
+            <Button className={`w-full`}>
+              { loading ? <ClipLoader color={'#fff'} loading={loading} size={25} /> : "Sign In" }
+            </Button>
           </form>
         </Form>
         <div className={`mt-4 w-full flex flex-row text-sm justify-center`}>
