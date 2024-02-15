@@ -9,9 +9,6 @@ import NotificationBell from '../user/NotificationBell';
 export default async function Header() {
   const { user } = await validateRequest();
   const avatar = user?.profileImageUrl
-  //if(user) {
-    console.log("User: ", user)
-  //}
 
   return (
     <header className={`p-6 bg-teal-700 text-white flex flex-row`}>
@@ -21,6 +18,13 @@ export default async function Header() {
         </div>
         <nav className={`ml-auto flex flex-row`}>
           <div className={`flex flex-row gap-4 items-center mr-12`}>
+            {/* Logged in */}
+            { user && (
+              <>
+                <Link href={`/create-project`}>Create Project</Link>
+              </>
+            )}
+
             <Link href={`/projects`}>Explore Projects</Link>
           </div>
           <div className={`flex flex-row gap-6 items-center`}>

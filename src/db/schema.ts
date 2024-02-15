@@ -27,7 +27,9 @@ export const projectTable = pgTable("project", {
   description: text("description").notNull(),
   createdAt: timestamp("created_at").notNull(),
   endDate: timestamp("end_date").notNull(),
-  userId: text("user_id").notNull().references(() => userTable.id)
+  userId: text("user_id").notNull().references(() => userTable.id),
+  imageUrl: text("image_url"),
+  bannerImageUrl: text("banner_image_url"),
 });
 
 export const tag = pgTable("tag", {
