@@ -2,12 +2,11 @@ import { getProjects } from '@/actions/projects'
 import { projectTable } from '@/db/schema'
 import ProjectListItem from './ProjectListItem'
 import FilterList from './FilterList'
-
-type Project = typeof projectTable.$inferInsert
+import { ProjectWithTags } from '@/types/Projects'
 
 export default async function ProjectList() {
   const projectRes = await getProjects()
-  const projects: Project[] = (projectRes.success) ? projectRes.response as Project[] : []
+  const projects: ProjectWithTags[] = (projectRes.success) ? projectRes.response as ProjectWithTags[] : []
 
   return (
     <div className={`flex flex-row gap-4`}>

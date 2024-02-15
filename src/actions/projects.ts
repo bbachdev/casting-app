@@ -1,11 +1,9 @@
 'use server'
-import { projectTable } from '@/db/schema'
+import { ProjectWithTags } from '@/types/Projects'
 import { ServerActionResponse } from '@/util/actions'
 
-type Project = typeof projectTable.$inferInsert
-
 export const getProjects = async () : Promise<ServerActionResponse> => {
-  const projectList: Project[] = []
+  const projectList: ProjectWithTags[] = []
 
   //Temp: Create test projects
   for (let i = 0; i < 10; i++) {
@@ -15,7 +13,8 @@ export const getProjects = async () : Promise<ServerActionResponse> => {
       description: `Description for project ${i}`,
       createdAt: new Date(),
       endDate: new Date(),
-      userId: '1'
+      userId: '1',
+      tags: [{ id: 1, name: 'Tag 1'}]
     })
   }
   return ServerActionResponse(200, projectList)

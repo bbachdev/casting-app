@@ -1,0 +1,1 @@
+ALTER TABLE "tag" RENAME COLUMN "tag_name" TO "name";

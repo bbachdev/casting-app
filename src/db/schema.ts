@@ -33,13 +33,13 @@ export const projectTable = pgTable("project", {
 });
 
 export const tag = pgTable("tag", {
-  tagId: serial("id").primaryKey(),
-  tagName: text("tag_name").notNull(),
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
 });
 
 export const projectTag = pgTable("project_tag", {
   projectId: serial("project_id").notNull().references(() => projectTable.id),
-  tagId: serial("tag_id").notNull().references(() => tag.tagId),
+  tagId: serial("tag_id").notNull().references(() => tag.id),
   }, (table) => {
     return {
       pk: primaryKey({ columns: [table.projectId, table.tagId] }),
