@@ -14,7 +14,7 @@ export const getProjects = async () : Promise<ServerActionResponse> => {
       createdAt: new Date(),
       endDate: new Date(),
       userId: '1',
-      tags: [{ id: 1, name: 'Tag 1'}]
+      tags: [{ id: 1, name: 'Tag 1', color: 'bg-emerald-200'}]
     })
   }
   return ServerActionResponse(200, projectList)

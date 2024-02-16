@@ -1,15 +1,25 @@
+'use client'
 import { Button } from '../ui/button';
 import { Card, CardContent } from '../ui/card';
 import { Checkbox } from '../ui/checkbox';
 import Search from './Search';
 
 export default function FilterList() {
+
+  function deselectAll() {
+    console.log('deselect all')
+  }
+
   return (
     <Card>
       <CardContent className={`p-4 w-full flex flex-col`}>
         <Search />
         <div className={`mt-4`}>
-          <p className={`font-semibold text-lg`}>Filters</p>
+          <div className={`flex flex-row w-full items-center`}>
+            <p className={`font-semibold text-lg`}>Filters</p>
+            <button className={`ml-auto text-sm underline`} onClick={deselectAll}><p>Deselect All</p></button>
+          </div>
+          
           <div className={`mt-2`}>
             <p className={`font-semibold mb-2`}>Category</p>
             <div className={`flex flex-col gap-1`}>

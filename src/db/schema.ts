@@ -35,6 +35,7 @@ export const projectTable = pgTable("project", {
 export const tag = pgTable("tag", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
+  color: text("color").notNull(),
 });
 
 export const projectTag = pgTable("project_tag", {
