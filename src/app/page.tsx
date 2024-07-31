@@ -3,7 +3,7 @@ import Image from "next/image";
 export default function Home() {
   return (
     <main className="">
-      Hello world!
+      Create standardized casting calls, attract professional talent
     </main>
   );
 }
