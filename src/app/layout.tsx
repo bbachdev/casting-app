@@ -22,7 +22,7 @@ export default function RootLayout({
       <body className={`${inter.className} bg-slate-100 dark:bg-slate-800 min-h-dvh flex flex-col`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <Header />
-          <main className="container mx-auto text-center">{children}</main> 
+          <main className="mx-auto text-center w-full">{children}</main> 
           <Footer />
         </ThemeProvider>
       </body>
