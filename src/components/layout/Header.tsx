@@ -20,10 +20,12 @@ export default function Header() {
           <Link href="/">Home</Link>
         </ul>
         <ul className={`ml-auto flex my-auto gap-4`}>
-          <Button variant="outline">
-            Sign In
-          </Button>
-          <Button variant="outline" onClick={() => toggleTheme()}>
+          <Link href="/signin">
+            <Button variant="brand">
+              Sign In
+            </Button>
+          </Link>    
+          <Button variant="brand" onClick={() => toggleTheme()}>
             {resolvedTheme === "dark" ? <MdLightMode /> : <MdDarkMode />}
           </Button>
         </ul>

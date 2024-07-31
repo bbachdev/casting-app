@@ -1,3 +1,4 @@
+import ContentContainer from '@/components/layout/ContentContainer';
 import Image from "next/image";
 
 export default function Home() {
@@ -6,7 +7,7 @@ export default function Home() {
       <div className="flex flex-col items-center justify-center h-80 bg-slate-500 w-full">
         <h2 className={`text-white font-bold text-3xl`}>Casting, simplified.</h2>
       </div>
-      <div className={`flex flex-col max-w-[1440px] w-full mx-auto`}>
+      <ContentContainer>
         <div className={`my-12 flex flex-row items-center w-full`}>
           <div className={`mx-12 flex flex-col items-center h-72 bg-sky-500 w-1/2 text-white p-4 py-8`}>
             <h3 className={`font-bold text-xl`}>Performers</h3>
@@ -34,8 +35,7 @@ export default function Home() {
         <div>
           Additional text/content here
         </div>
-      </div>
-      
+      </ContentContainer>
     </main>
   );
 }
