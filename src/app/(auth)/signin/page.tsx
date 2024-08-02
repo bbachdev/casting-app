@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ThreeDots } from 'react-loader-spinner';
 import { useTransition } from 'react';
+import { attemptSignIn } from '@/actions/auth';
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -26,9 +27,14 @@ export default function SignIn() {
     },
   })
 
-  function onSubmit(values: z.infer<typeof SignInSchema>) {
-    startTransition(() => {
-      console.log(values)
+  async function onSubmit(values: z.infer<typeof SignInSchema>) {
+    startTransition(async () => {
+      const response = await attemptSignIn(values.email, values.password)
+      if(response.status === 302) {
+        console.log('Successful login')
+      }else{
+        console.log('Unsuccessful login: ', response.body)
+      }
     })
   }
 
@@ -42,7 +48,7 @@ export default function SignIn() {
           <p>or</p>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className={`my-8 text-left`}>
-              <FormField name="email" control={form.control} render={(field) => (
+              <FormField name="email" control={form.control} render={({field}) => (
                 <FormItem className={`my-4`}>
                   <FormLabel>Email</FormLabel>
                   <FormControl>
@@ -51,7 +57,7 @@ export default function SignIn() {
                   <FormMessage />
                 </FormItem>
               )}/>
-              <FormField name="password" control={form.control} render={(field) => (
+              <FormField name="password" control={form.control} render={({field}) => (
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
