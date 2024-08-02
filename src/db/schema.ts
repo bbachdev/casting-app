@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -21,6 +21,19 @@ export const sessionTable = pgTable("session", {
 		mode: "date"
 	}).notNull()
 });
+
+export const oAuthAccountTable = pgTable("oauth_account", {
+  providerId: text("provider_id").notNull(),
+  provider_user_id: text("provider_user_id").notNull(),
+  userId: text("user_id")
+    .notNull()
+    .references(() => userTable.id),
+  }, (table) => {
+    return {
+      pk: primaryKey({columns: [table.providerId, table.provider_user_id]})
+    }
+  }
+)
 
 export const profileTable = pgTable("profile", {
 	id: text("id").primaryKey(),

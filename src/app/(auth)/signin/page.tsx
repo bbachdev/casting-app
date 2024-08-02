@@ -9,7 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ThreeDots } from 'react-loader-spinner';
 import { useTransition } from 'react';
-import { attemptSignIn } from '@/actions/auth';
+import { attemptSignIn, attemptOAuthSignIn } from '@/actions/auth';
+import { FaGoogle } from "react-icons/fa";
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -38,6 +39,18 @@ export default function SignIn() {
     })
   }
 
+  //TODO: Use enum for providers instead
+  async function oauthSignIn(provider: string) {
+    startTransition(async () => {
+      const response = await attemptOAuthSignIn(provider)
+      if(response.status === 302) {
+        console.log('Successful login')
+      }else{
+        console.log('Unsuccessful login: ', response.body)
+      }
+    })
+  }
+
   return (
     <ContentContainer>
       <Card className={`mt-12 mx-auto flex flex-col items-center justify-center w-1/2`}>
@@ -45,6 +58,11 @@ export default function SignIn() {
           <h1 className={`text-3xl font-bold`}>Sign In</h1>
         </CardHeader>
         <CardContent className={`w-9/12`}>
+          <div className={`flex flex-col items-center`}>
+            <Button className={`mt-8 w-full`} variant="brand" onClick={() => oauthSignIn('google')}>
+              <FaGoogle className={`mr-2`} /> Sign In with Google
+            </Button>
+          </div>
           <p>or</p>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className={`my-8 text-left w-full`}>

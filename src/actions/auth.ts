@@ -50,3 +50,12 @@ export async function attemptSignIn(email: string, password: string) : Promise<S
     }
   }
 }
+
+export async function attemptOAuthSignIn(provider: string) : Promise<ServerActionResponse> {
+  return {
+    status: 302,
+    body: {
+      
+    }
+  }
+}
