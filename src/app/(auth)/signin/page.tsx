@@ -40,14 +40,14 @@ export default function SignIn() {
 
   return (
     <ContentContainer>
-      <Card className={`mt-12 mx-auto flex flex-col items-center justify-center w-1/3`}>
+      <Card className={`mt-12 mx-auto flex flex-col items-center justify-center w-1/2`}>
         <CardHeader>
           <h1 className={`text-3xl font-bold`}>Sign In</h1>
         </CardHeader>
-        <CardContent>
+        <CardContent className={`w-9/12`}>
           <p>or</p>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className={`my-8 text-left`}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className={`my-8 text-left w-full`}>
               <FormField name="email" control={form.control} render={({field}) => (
                 <FormItem className={`my-4`}>
                   <FormLabel>Email</FormLabel>
