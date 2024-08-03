@@ -69,6 +69,7 @@ export default async function GET(req: NextRequest) {
     return new Response(null, {
       status: 302,
       headers: {
+        "Location:": "/dashboard",
         "Set-Cookie": sessionCookie.serialize()
       }
     });
