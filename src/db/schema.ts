@@ -8,8 +8,12 @@ export const userTable = pgTable("user", {
   dateOfBirth: timestamp("date_of_birth", {
     withTimezone: true,
     mode: "date"
-  })
+  }),
+  imageUrl: text("image_url")
 });
+
+export type User = typeof userTable.$inferSelect;
+export type NewUser = typeof userTable.$inferInsert;
 
 export const sessionTable = pgTable("session", {
 	id: text("id").primaryKey(),
@@ -22,18 +26,23 @@ export const sessionTable = pgTable("session", {
 	}).notNull()
 });
 
+export type NewSession = typeof sessionTable.$inferInsert;
+
 export const oAuthAccountTable = pgTable("oauth_account", {
   providerId: text("provider_id").notNull(),
-  provider_user_id: text("provider_user_id").notNull(),
+  providerUserId: text("provider_user_id").notNull(),
   userId: text("user_id")
     .notNull()
     .references(() => userTable.id),
   }, (table) => {
     return {
-      pk: primaryKey({columns: [table.providerId, table.provider_user_id]})
+      pk: primaryKey({columns: [table.providerId, table.providerUserId]})
     }
   }
 )
+
+export type OAuthAccount = typeof oAuthAccountTable.$inferSelect;
+export type NewOAuthAccount = typeof oAuthAccountTable.$inferInsert;
 
 export const profileTable = pgTable("profile", {
 	id: text("id").primaryKey(),

@@ -9,8 +9,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { ThreeDots } from 'react-loader-spinner';
 import { useTransition } from 'react';
-import { attemptSignIn, attemptOAuthSignIn } from '@/actions/auth';
-import { FaGoogle } from "react-icons/fa";
+import { attemptSignIn } from '@/actions/auth';
+import { FaGoogle, FaApple } from "react-icons/fa";
 
 const SignInSchema = z.object({
   email: z.string().email(),
@@ -42,7 +42,15 @@ export default function SignIn() {
   //TODO: Use enum for providers instead
   async function oauthSignIn(provider: string) {
     startTransition(async () => {
-      const response = await attemptOAuthSignIn(provider)
+      const response = await fetch('/api/auth/oauth', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          provider: provider
+        })
+      })
       if(response.status === 302) {
         console.log('Successful login')
       }else{
@@ -54,13 +62,16 @@ export default function SignIn() {
   return (
     <ContentContainer>
       <Card className={`mt-12 mx-auto flex flex-col items-center justify-center w-1/2`}>
-        <CardHeader>
+        <CardHeader className={`pb-4`}>
           <h1 className={`text-3xl font-bold`}>Sign In</h1>
         </CardHeader>
         <CardContent className={`w-9/12`}>
-          <div className={`flex flex-col items-center`}>
+          <div className={`flex flex-col items-center mb-8`}>
             <Button className={`mt-8 w-full`} variant="brand" onClick={() => oauthSignIn('google')}>
               <FaGoogle className={`mr-2`} /> Sign In with Google
+            </Button>
+            <Button className={`mt-4 w-full`} variant="brand" onClick={() => oauthSignIn('apple')}>
+              <FaApple className={`mr-2`} /> Sign In with Apple
             </Button>
           </div>
           <p>or</p>

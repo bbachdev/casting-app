@@ -15,6 +15,13 @@
       "when": 1722612128377,
       "tag": "0001_cultured_proemial_gods",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1722700021148,
+      "tag": "0002_brief_morph",
+      "breakpoints": true
     }
   ]
 }
