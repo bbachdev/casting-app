@@ -15,7 +15,7 @@ export const lucia = new Lucia(adapter, {
 		return {
 			email: attributes.email,
       displayName: attributes.displayName,
-      photoUrl: attributes.photoUrl
+      imageUrl: attributes.imageUrl
 		};
 	}
 });
@@ -27,7 +27,7 @@ declare module "lucia" {
     DatabaseUserAttributes: {
 			email: string;
       displayName: string;
-      photoUrl: string;
+      imageUrl: string;
 		};
 	}
 }

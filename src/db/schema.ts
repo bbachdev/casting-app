@@ -53,6 +53,9 @@ export const profileTable = pgTable("profile", {
   imageUrl: text("image_url")
 });
 
+export type Profile = typeof profileTable.$inferSelect;
+export type NewProfile = typeof profileTable.$inferInsert;
+
 export const teamTable = pgTable("team", {
 	id: text("id").primaryKey(),
 	name: text("name").notNull(),
