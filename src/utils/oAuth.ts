@@ -20,7 +20,7 @@ export async function getUserFromOAuthProvider(user: NewUser, oauthAccount: OAut
       var userList : User[] = await db.select().from(userTable).where(eq(userTable.email, user.email)).limit(1);
       var newUserId : string | null = null;
       if(userList.length === 0) {
-        const newUser = await db.insert(userTable).values(user).returning({id:userTable.id, email: userTable.email, displayName: userTable.displayName, dateOfBirth: userTable.dateOfBirth, imageUrl: userTable.imageUrl, hashedPassword: userTable.hashedPassword});
+        const newUser = await db.insert(userTable).values(user).returning({id:userTable.id, email: userTable.email, displayName: userTable.displayName, dateOfBirth: userTable.dateOfBirth, imageUrl: userTable.imageUrl, hashedPassword: userTable.hashedPassword, status: userTable.status});
         userList = [newUser[0]]
 
         // Create profile and associate with user

@@ -15,7 +15,8 @@ export const lucia = new Lucia(adapter, {
 		return {
 			email: attributes.email,
       displayName: attributes.displayName,
-      imageUrl: attributes.imageUrl
+      imageUrl: attributes.imageUrl,
+      isNew: attributes.status === "new"
 		};
 	}
 });
@@ -28,6 +29,8 @@ declare module "lucia" {
 			email: string;
       displayName: string;
       imageUrl: string;
+      status: string;
+      isNew: boolean;
 		};
 	}
 }

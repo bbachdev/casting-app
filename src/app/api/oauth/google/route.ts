@@ -64,7 +64,7 @@ export async function GET(req: NextRequest) {
     }
 
     //Create session and log in user
-    const session = await lucia.createSession(user.id, { email: user.email, displayName: user.displayName, photoUrl: user.imageUrl });
+    const session = await lucia.createSession(user.id, { email: user.email, displayName: user.displayName, photoUrl: user.imageUrl, status: user.status });
 		const sessionCookie = lucia.createSessionCookie(session.id);
     cookies().set(sessionCookie)
     return NextResponse.redirect(process.env.NEXT_PUBLIC_BASE_URL+"/dashboard");
